@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Peringatan</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: #00FF00;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #start-screen {
+            text-align: center;
+            cursor: pointer;
+        }
+        #start-screen h1 {
+            color: white;
+            font-size: 24px;
+            animation: blink 1s infinite;
+        }
+        #hacker-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            font-size: 18px;
+            line-height: 1.5;
+            position: relative; /* Penting untuk efek shake */
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        /* Animasi Berkedip Layar Awal */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* --- Animasi Layar Bergetar (Shake) --- */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        /* Kelas CSS untuk memicu getaran */
+        .apply-shake {
+            animation: shake 0.5s; /* Durasi getaran */
+            animation-iteration-count: infinite; /* Bergetar terus menerus */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" onclick="startPrank()">
+        <h1>⚠️ KLIK DI SINI UNTUK MELANJUTKAN ⚠️</h1>
+    </div>
+
+    <div id="hacker-screen">
+        <div id="console-text"></div>
+    </div>
+
+    <script>
+        const textArray = [
+            "MENGAKSES SISTEM...",
+            "MEMBONGKAR FIREWALL...",
+            "AKSES DITERIMA.",
+            "MENGUNDUH DATA PRIBADI...",
+            "MENGAMBIL ALIH KAMERA...",
+            "MENGUNCI PERANGKAT DALAM 5 DETIK...",
+            "<span class='warning'>PERINGATAN: SISTEM ANDA TELAH DIAMBIL ALIH!</span>",
+            "JANGAN MATIKAN PERANGKAT INI ATAU SEMUA DATA AKAN DIHAPUS SEKARANG."
+        ];
+
+        let i = 0;
+        const speed = 1500; // Kecepatan munculnya teks (dalam milidetik)
+
+        function startPrank() {
+            // Sembunyikan tombol mulai, tampilkan layar hacker
+            document.getElementById("start-screen").style.display = "none";
+            const hackerScreen = document.getElementById("hacker-screen");
+            hackerScreen.style.display = "block";
+            
+            // Panggil fungsi untuk membuat suara alarm tegang
+            generateScarySound();
+
+            // Mulai animasi teks
+            typeWriter();
+        }
+
+        // Fungsi ini membuat suara sirine secara otomatis menggunakan sistem browser
+        function generateScarySound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                setInterval(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    
+                    osc.type = 'square'; // Menghasilkan suara elektronik yang kasar
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime); // Nada pertama
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.2); // Nada kedua naik
+                    
+                    // Mengatur volume (0.15 cukup keras tapi tidak merusak telinga)
+                    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); 
+                    
+                    osc.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                }, 400); // Sirine berulang setiap 400 milidetik
+            } catch (error) {
+                console.error("Audio Context tidak didukung:", error);
+            }
+        }
+
+        function typeWriter() {
+            if (i < textArray.length) {
+                document.getElementById("console-text").innerHTML += textArray[i] + "<br><br>";
+                i++;
+                setTimeout(typeWriter, speed);
+            } else {
+                // --- KETIKA TEKS SELESAI, PICU EFEK PANIK ---
+                
+                // 1. Tambahkan efek getar ke seluruh layar
+                document.getElementById("hacker-screen").classList.add("apply-shake");
+                
+                // 2. Membuat teks berkedip cepat di akhir agar makin panik
+                setInterval(() => {
+                    const consoleElement = document.getElementById("console-text");
+                    consoleElement.style.visibility = (consoleElement.style.visibility == 'hidden' ? '' : 'hidden');
+                }, 200);
+            }
+        }
+    </script>
+</body>
+</html>
